@@ -4,9 +4,6 @@
   "private": true,
   "description": "Full-stack AI-powered E-Commerce Shopping Platform with FastAPI, React, and Vite",
   "scripts": {
-    "build": "npm --prefix frontend install && npm --prefix frontend run build",
-    "dev": "npm --prefix frontend run dev",
-    "dev:frontend": "npm --prefix frontend run dev"
+    "build": "node -e \"const { execSync } = require('child_process'); const fs = require('fs'); const dir = fs.existsSync('frontend/package.json') ? 'frontend' : '.'; execSync('npm install && npm run build', { cwd: dir, stdio: 'inherit' });\""
   }
 }
-
