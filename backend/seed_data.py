@@ -22,7 +22,6 @@ def seed_database():
         Base.metadata.create_all(bind=engine)
         db = SessionLocal()
 
-    try:
         # 1. SEED USERS
         print("Seeding Users...")
         admin = db.query(User).filter(User.email == "admin@buysmart.com").first()

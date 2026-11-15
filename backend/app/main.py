@@ -21,6 +21,24 @@ from app.routers import (
 init_db_extensions()
 Base.metadata.create_all(bind=engine)
 
+def auto_seed_if_empty():
+    """Seeds initial categories, products, and admin accounts if database is empty."""
+    try:
+        from app.models.category import Category
+        from app.database import SessionLocal
+        db = SessionLocal()
+        try:
+            if db.query(Category).count() == 0:
+                print("Database is unseeded. Auto-seeding initial catalog and users...")
+                from seed_data import seed_database
+                seed_database()
+        finally:
+            db.close()
+    except Exception as e:
+        print(f"Notice: Auto-seed check ({e})")
+
+auto_seed_if_empty()
+
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
@@ -44,6 +62,7 @@ origins = settings.CORS_ORIGINS if isinstance(settings.CORS_ORIGINS, list) else 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -75,6 +94,16 @@ def health_check():
         "database": "connected",
         "rag_pipeline": "ready"
     }
+
+@app.post("/api/seed", tags=["Admin Operations"])
+def trigger_seed():
+    """Manual endpoint to populate catalog, demo users, and knowledge base documents."""
+    try:
+        from seed_data import seed_database
+        seed_database()
+        return {"status": "success", "message": "Database successfully populated with catalog, users, and documents."}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":
     import uvicorn

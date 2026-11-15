@@ -34,6 +34,25 @@ class Settings(BaseSettings):
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def resolve_database_url(cls, v):
+        # On Vercel serverless environment, filesystem is read-only except /tmp
+        if os.environ.get("VERCEL"):
+            # If an external cloud database (e.g. PostgreSQL) is provided via environment variable:
+            if v and not str(v).startswith("sqlite"):
+                if str(v).startswith("postgresql+asyncpg://"):
+                    return "postgresql+psycopg2://" + str(v)[len("postgresql+asyncpg://"):]
+                return v
+
+            # If using SQLite on Vercel, copy bundled DB to /tmp so it is writable
+            import shutil
+            tmp_db = Path("/tmp/buysmart.db")
+            src_db = BACKEND_DIR / "buysmart.db"
+            if not tmp_db.exists() and src_db.exists():
+                try:
+                    shutil.copyfile(src_db, tmp_db)
+                except Exception as e:
+                    print(f"Notice: Could not copy buysmart.db to /tmp: {e}")
+            return f"sqlite:///{tmp_db.as_posix()}"
+
         if isinstance(v, str):
             if v.startswith("sqlite:///./"):
                 rel_path = v[len("sqlite:///./"):]

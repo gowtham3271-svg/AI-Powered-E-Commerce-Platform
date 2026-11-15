@@ -1,0 +1,12 @@
+{
+  "name": "buysmart-ecommerce",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack AI-powered E-Commerce Shopping Platform with FastAPI, React, and Vite",
+  "scripts": {
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "dev": "npm --prefix frontend run dev",
+    "dev:frontend": "npm --prefix frontend run dev"
+  }
+}
+
