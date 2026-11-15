@@ -1,0 +1,46 @@
+# Virtual environments
+backend/venv/
+venv/
+env/
+ENV/
+.venv/
+
+# Environment files with secrets (NEVER commit secrets!)
+backend/.env
+.env
+.env.local
+.env.*.local
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Node & Frontend dependencies & build output
+frontend/node_modules/
+node_modules/
+frontend/dist/
+dist/
+.eslintcache
+
+# SQLite local databases
+*.sqlite
+*.sqlite3
+*.db
+buysmart.db
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary test / probe files
+.test_probe

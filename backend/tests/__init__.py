@@ -1,0 +1,1 @@
+# BuySmart automated test suite
