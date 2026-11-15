@@ -40,17 +40,17 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   // If both primary and remote fallback fail, render a gorgeous SVG tech placeholder
   if (errorCount >= 2 || (!src && errorCount >= 1)) {
     return (
-      <div className={`flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 text-slate-400 p-4 border border-slate-700/50 ${className}`}>
-        {categoryName === 'Laptops' && <Laptop size={36} className="text-brand-400 mb-2" />}
-        {categoryName === 'Smartphones' && <Smartphone size={36} className="text-indigo-400 mb-2" />}
-        {categoryName === 'Headphones' && <Headphones size={36} className="text-purple-400 mb-2" />}
-        {categoryName === 'Smartwatches' && <Watch size={36} className="text-emerald-400 mb-2" />}
-        {categoryName === 'Accessories' && <HardDrive size={36} className="text-amber-400 mb-2" />}
+      <div className={`flex flex-col items-center justify-center bg-neutral-900 text-neutral-400 p-4 border border-neutral-800 ${className}`}>
+        {categoryName === 'Laptops' && <Laptop size={36} className="text-white mb-2" />}
+        {categoryName === 'Smartphones' && <Smartphone size={36} className="text-white mb-2" />}
+        {categoryName === 'Headphones' && <Headphones size={36} className="text-white mb-2" />}
+        {categoryName === 'Smartwatches' && <Watch size={36} className="text-white mb-2" />}
+        {categoryName === 'Accessories' && <HardDrive size={36} className="text-white mb-2" />}
         {!['Laptops', 'Smartphones', 'Headphones', 'Smartwatches', 'Accessories'].includes(categoryName || '') && (
-          <Package size={36} className="text-slate-400 mb-2" />
+          <Package size={36} className="text-neutral-400 mb-2" />
         )}
-        <span className="text-[11px] font-medium text-slate-300 text-center line-clamp-1">{alt || 'Product'}</span>
-        <span className="text-[9px] uppercase tracking-wider text-slate-500 mt-0.5">{categoryName || 'Electronics'}</span>
+        <span className="text-[11px] font-bold text-white text-center line-clamp-1 uppercase tracking-wider">{alt || 'Product'}</span>
+        <span className="text-[9px] uppercase tracking-widest text-neutral-500 mt-0.5">{categoryName || 'Electronics'}</span>
       </div>
     );
   }

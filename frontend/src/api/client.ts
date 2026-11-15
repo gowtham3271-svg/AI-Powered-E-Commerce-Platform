@@ -107,15 +107,30 @@ function clientSideSearch(params?: {
   return list;
 }
 
-// Client-side AI fallback assistant
+// Client-side AI fallback assistant with multi-intent comprehension
 function generateClientAssistantResponse(message: string, sessionId?: number): ChatAskResponse {
   const q = message.toLowerCase().trim();
 
-  // 1. Direct Store Policy Answers
+  // 1. Greetings & Conversational Questions
+  const isGreeting = /^(hi|hello|hey|yo|namaste|good\s*(morning|afternoon|evening)|howdy|sup|greetings)(\s+.*)?$/i.test(q) ||
+    q === 'hi' || q === 'hello' || q === 'hey';
+  const isHelpOrIdentity = q.includes('who are you') || q.includes('what are you') || q.includes('what can you do') ||
+    q.includes('help me') || q.includes('how does this work') || q.includes('what is buysmart');
+
+  if (isGreeting || isHelpOrIdentity) {
+    return {
+      session_id: sessionId || Date.now(),
+      reply: `### Hello! I am BuySmart AI, your personal shopping assistant.\n\nI can help you explore our verified hardware catalog, compare technical specifications, and make informed electronics buying decisions.\n\n**Here is what you can ask me:**\n- 💻 *"Suggest a gaming and coding laptop under ₹60,000"*\n- 📱 *"Which phone has the best camera and battery under ₹25,000?"*\n- 🎧 *"Show me top-rated noise-cancelling headphones for work"*\n- 📦 *"What is the 7-day doorstep replacement policy?"*\n- 🏷️ *"What coupon codes or discounts are available?"*\n\n> 💡 **Store Highlight**: All prepaid orders over ₹499 qualify for Free Express Shipping across India with full brand manufacturer warranty.`,
+      referenced_products: [],
+      sources: ['BuySmart AI Shopping Assistant', 'Platform Capabilities Guide']
+    };
+  }
+
+  // 2. Direct Store Policy Answers (Returns, Shipping, Warranty, Payments)
   if (q.includes('return') || q.includes('replace') || q.includes('refund') || q.includes('exchange')) {
     return {
       session_id: sessionId || Date.now(),
-      reply: `### BuySmart 7-Day Doorstep Replacement Guarantee\n\n- **7-Day Replacement**: You can request a hassle-free doorstep replacement within **7 days** of delivery if your item is damaged, defective, or incorrect.\n- **Zero Friction**: A courier agent conducts an on-the-spot verification and provides an instant exchange.\n- **Full Refund Alternative**: If an exact replacement model is out of stock, 100% of your amount is credited back to your original payment method in 3–5 business days.\n- **Requirements**: Ensure original packaging, warranty documentation, and bundled accessories remain intact.\n\n> 📦 To initiate a return, visit your [Order History](#orders) or message customer support.`,
+      reply: `### BuySmart 7-Day Doorstep Replacement Guarantee\n\n- **7-Day Window**: You can request an on-the-spot doorstep replacement within **7 days** of delivery if your device has any hardware defect, transit damage, or specification mismatch.\n- **Hassle-Free Handover**: A technician visits your address to inspect the unit and hand over a fresh replacement.\n- **Full Refund Alternative**: If an exact model is out of stock, 100% of your amount is credited back to your original payment method within 3–5 business days.\n- **Condition**: Keep the original brand box, serial number label, accessories, and GST invoice intact.\n\n> 📦 You can manage or initiate replacements directly from your [Order History](#orders).`,
       referenced_products: [],
       sources: ['BuySmart Return & Replacement Policy', 'Customer Protection Guarantee']
     };
@@ -124,7 +139,7 @@ function generateClientAssistantResponse(message: string, sessionId?: number): C
   if (q.includes('shipping') || q.includes('delivery') || q.includes('dispatch') || q.includes('courier') || q.includes('track')) {
     return {
       session_id: sessionId || Date.now(),
-      reply: `### BuySmart Express Shipping & Delivery\n\n- **Free Delivery**: All orders above **₹499** qualify for 100% Free Express Shipping across India.\n- **Same-Day Dispatch**: Orders placed before 4:00 PM IST ship on the same business day.\n- **Metro Timelines**: Delhi NCR, Mumbai, Bengaluru, Hyderabad, and Chennai receive delivery in **24–48 hours**.\n- **All India Coverage**: Other locations arrive in **2–4 business days** via premium air couriers (Blue Dart & Delhivery).\n- **Live Tracking**: Instant tracking link dispatched via SMS and WhatsApp upon handover to logistics.`,
+      reply: `### BuySmart Express Air Shipping & Delivery\n\n- **Free Shipping**: Every prepaid order over **₹499** qualifies for 100% Free Express Shipping across India.\n- **Same-Day Dispatch**: Orders confirmed before 4:00 PM IST are dispatched on the same day from our nearest fulfillment hub.\n- **Metro Timelines**: Delhi NCR, Mumbai, Bengaluru, Hyderabad, and Chennai arrive within **24–48 hours**.\n- **National Coverage**: All other pin codes are serviced in **2–4 business days** via Blue Dart, Delhivery, and express air couriers.\n- **Live Tracking**: Instant tracking link sent via SMS and WhatsApp as soon as your package leaves our warehouse.`,
       referenced_products: [],
       sources: ['Logistics & Express Delivery SLAs']
     };
@@ -133,56 +148,121 @@ function generateClientAssistantResponse(message: string, sessionId?: number): C
   if (q.includes('warranty') || q.includes('guarantee') || q.includes('genuine') || q.includes('authentic')) {
     return {
       session_id: sessionId || Date.now(),
-      reply: `### 100% Genuine Certified Hardware & Brand Warranty\n\n- **Official Distributor Sourced**: All laptops, smartphones, and audio gear are factory-sealed and 100% authentic.\n- **Manufacturer Warranty**: Every product includes **1 to 2 Years** of official manufacturer warranty valid across all authorized service centers nationwide (Apple, ASUS, Lenovo, Sony, Samsung, Acer).\n- **GST Tax Invoice**: Every purchase generates an official GST-compliant tax invoice, essential for warranty claims and corporate input tax credit.`,
+      reply: `### 100% Genuine Certified Hardware & Brand Warranty\n\n- **Direct Brand Sourcing**: Every laptop, phone, headphone, and smartwatch is brand new, sealed, and sourced directly from authorized brand distributors.\n- **Official Manufacturer Warranty**: All products include **1 to 2 Years** of official brand warranty valid across 1,000+ authorized brand service centers across India (Apple, ASUS, Lenovo, Sony, Samsung, Acer, OnePlus).\n- **GST Tax Invoice**: Every purchase generates an official GST-compliant tax invoice, essential for warranty claims and corporate input tax credit.`,
       referenced_products: [],
       sources: ['Authorized Retailer Certificate', 'Manufacturer Warranty Manual']
     };
   }
 
-  if (q.includes('payment') || q.includes('upi') || q.includes('cod') || q.includes('card') || q.includes('emi') || q.includes('pay')) {
+  if (q.includes('payment') || q.includes('upi') || q.includes('cod') || q.includes('card') || q.includes('emi') || q.includes('net banking')) {
     return {
       session_id: sessionId || Date.now(),
-      reply: `### Accepted Payment Methods & Checkout\n\n- **UPI (Instant 0% Fee)**: Google Pay, PhonePe, Paytm, BHIM, and dynamic QR scan.\n- **Credit & Debit Cards**: Visa, MasterCard, RuPay, and American Express with 128-bit bank-grade encryption.\n- **Net Banking**: 50+ major Indian banks supported (HDFC, ICICI, SBI, Axis, Kotak).\n- **Cash on Delivery (COD)**: Available for orders up to ₹25,000 with SMS OTP doorstep verification.\n- **Exclusive Offer**: Use code \`BUYSMART10\` at checkout for an instant **10% discount**!`,
+      reply: `### Accepted Payment Methods & Checkout Security\n\n- **UPI (Instant 0% Fee)**: Google Pay, PhonePe, Paytm, BHIM, and dynamic QR scan.\n- **Credit & Debit Cards**: Visa, MasterCard, RuPay, and American Express with 128-bit bank-grade encryption.\n- **Net Banking**: 50+ major Indian banks supported (HDFC, ICICI, SBI, Axis, Kotak).\n- **Cash on Delivery (COD)**: Available for orders up to ₹25,000 with SMS OTP doorstep verification.\n- **Exclusive Offer**: Use code \`BUYSMART10\` at checkout for an instant **10% discount**!`,
       referenced_products: [],
       sources: ['Payment Gateway Standards & RBI Compliance']
     };
   }
 
-  // 2. Targeted Catalog Search
+  // 3. Offers, Discounts & Coupons
+  if (q.includes('discount') || q.includes('coupon') || q.includes('promo') || q.includes('offer') || q.includes('code') || q.includes('sale') || q.includes('deal')) {
+    const deals = SEED_PRODUCTS.slice(0, 3);
+    return {
+      session_id: sessionId || Date.now(),
+      reply: `### Active Store Offers & Discounts\n\n- 🏷️ **Coupon BUYSMART10**: Apply code \`BUYSMART10\` in your bag for an instant **10% discount** on your entire cart.\n- 🚚 **Free Express Shipping**: Automatically applied on all orders above ₹499.\n- 💳 **UPI Instant Cashback**: Flat 0% gateway fees with instant UPI checkout.\n\nHere are some of our top trending deals with maximum savings today:`,
+      referenced_products: deals.map(p => ({
+        id: p.id,
+        name: p.name,
+        brand: p.brand,
+        price: p.price,
+        stock_quantity: p.stock_quantity,
+        image_url: p.image_url,
+        specifications: p.specifications,
+        reason: `Save ₹${Math.round(p.price * 0.25).toLocaleString('en-IN')} with 20% launch discount and code BUYSMART10`
+      })),
+      sources: ['BuySmart Promotions & Coupon Engine']
+    };
+  }
+
+  // 4. Catalog Overview / "What do you sell"
+  if (q.includes('catalog') || q.includes('categories') || q.includes('all products') || q.includes('what do you sell') || q.includes('what do you have')) {
+    // Pick 1 flagship item from each major category to give a diverse preview
+    const laptop = SEED_PRODUCTS.find(p => p.category_id === 2);
+    const phone = SEED_PRODUCTS.find(p => p.category_id === 1);
+    const audio = SEED_PRODUCTS.find(p => p.category_id === 3);
+    const watch = SEED_PRODUCTS.find(p => p.category_id === 4);
+    const sampler = [laptop, phone, audio, watch].filter(Boolean) as Product[];
+
+    return {
+      session_id: sessionId || Date.now(),
+      reply: `### BuySmart Curated Hardware Departments\n\nWe specialize in high-performance computing, mobile devices, and audio equipment:\n\n1. **💻 Laptops & Ultrabooks**: Apple M2/M3, ASUS ROG/TUF gaming, Acer OLED, Lenovo IdeaPad.\n2. **📱 Flagship Smartphones**: OnePlus Nord, Samsung Galaxy, Motorola Edge.\n3. **🎧 Wireless ANC Audio**: Sony WH-1000XM4, OnePlus Buds Pro, premium studio audio.\n4. **⌚ Smartwatches & Fitness**: Apple Watch SE, Samsung Galaxy Watch, fitness trackers.\n5. **🔌 Premium Accessories**: 65W GaN fast chargers, ergonomic mice, and high-speed NVMe SSDs.\n\nHere is a highlight from each department:`,
+      referenced_products: sampler.map(p => ({
+        id: p.id,
+        name: p.name,
+        brand: p.brand,
+        price: p.price,
+        stock_quantity: p.stock_quantity,
+        image_url: p.image_url,
+        specifications: p.specifications,
+        reason: `Flagship ${p.category_name} recommendation`
+      })),
+      sources: ['BuySmart Catalog Directory']
+    };
+  }
+
+  // 5. Targeted Catalog Search by Category, Brand, Budget, and Features
   let matched = [...SEED_PRODUCTS];
   let categoryName = '';
 
-  // Brand / Name search
-  const brandOrNameMatch = SEED_PRODUCTS.filter(p =>
-    q.includes(p.name.toLowerCase()) ||
-    q.includes(p.brand.toLowerCase()) ||
-    p.name.toLowerCase().split(' ').some(w => w.length > 3 && q.includes(w))
-  );
+  // Detect category keywords
+  if (q.includes('laptop') || q.includes('notebook') || q.includes('macbook') || q.includes('ultrabook') || q.includes('coding') || q.includes('programming') || q.includes('pc')) {
+    matched = matched.filter(p => p.category_id === 2);
+    categoryName = 'Laptops';
+  } else if (q.includes('phone') || q.includes('mobile') || q.includes('smartphone') || q.includes('iphone') || q.includes('android') || q.includes('5g')) {
+    matched = matched.filter(p => p.category_id === 1);
+    categoryName = 'Smartphones';
+  } else if (q.includes('headphone') || q.includes('earphone') || q.includes('audio') || q.includes('anc') || q.includes('earbuds') || q.includes('sound') || q.includes('tws')) {
+    matched = matched.filter(p => p.category_id === 3);
+    categoryName = 'Headphones & Audio';
+  } else if (q.includes('watch') || q.includes('smartwatch') || q.includes('fitness') || q.includes('tracker') || q.includes('wearable')) {
+    matched = matched.filter(p => p.category_id === 4);
+    categoryName = 'Smartwatches';
+  } else if (q.includes('charger') || q.includes('hub') || q.includes('mouse') || q.includes('ssd') || q.includes('accessory') || q.includes('storage') || q.includes('cable')) {
+    matched = matched.filter(p => p.category_id === 5);
+    categoryName = 'Accessories';
+  }
 
-  if (brandOrNameMatch.length > 0) {
-    matched = brandOrNameMatch;
-    categoryName = matched[0].category_name || '';
-  } else {
-    // Detect category keywords
-    if (q.includes('laptop') || q.includes('notebook') || q.includes('macbook') || q.includes('programming') || q.includes('coding') || q.includes('gaming')) {
-      matched = matched.filter(p => p.category_id === 2);
-      categoryName = 'Laptops';
-    } else if (q.includes('phone') || q.includes('mobile') || q.includes('smartphone') || q.includes('iphone') || q.includes('camera') || q.includes('5g')) {
-      matched = matched.filter(p => p.category_id === 1);
-      categoryName = 'Smartphones';
-    } else if (q.includes('headphone') || q.includes('earphone') || q.includes('audio') || q.includes('anc') || q.includes('earbuds') || q.includes('sound')) {
-      matched = matched.filter(p => p.category_id === 3);
-      categoryName = 'Headphones';
-    } else if (q.includes('watch') || q.includes('smartwatch') || q.includes('fitness') || q.includes('tracker')) {
-      matched = matched.filter(p => p.category_id === 4);
-      categoryName = 'Smartwatches';
-    } else if (q.includes('charger') || q.includes('hub') || q.includes('mouse') || q.includes('ssd') || q.includes('accessory')) {
-      matched = matched.filter(p => p.category_id === 5);
-      categoryName = 'Accessories';
+  // Brand filtering
+  const brands = ['apple', 'asus', 'lenovo', 'acer', 'samsung', 'oneplus', 'sony', 'motorola', 'amazfit', 'portronics', 'logitech', 'anker'];
+  const matchedBrand = brands.find(b => q.includes(b));
+  if (matchedBrand) {
+    const brandProds = matched.filter(p => p.brand.toLowerCase() === matchedBrand || p.name.toLowerCase().includes(matchedBrand));
+    if (brandProds.length > 0) {
+      matched = brandProds;
     }
   }
 
-  // Detect budget keywords (e.g. "under 60000", "under 25k", "under ₹50,000")
+  // Feature keywords
+  if (q.includes('gaming') || q.includes('rtx') || q.includes('gpu')) {
+    const gaming = matched.filter(p => 
+      p.name.toLowerCase().includes('tuf') || 
+      p.name.toLowerCase().includes('zephyrus') || 
+      p.name.toLowerCase().includes('rog') ||
+      (p.specifications && String(p.specifications['GPU'] || '').toLowerCase().includes('rtx'))
+    );
+    if (gaming.length > 0) matched = gaming;
+  }
+
+  if (q.includes('camera') || q.includes('photo')) {
+    const cameraProds = matched.filter(p => p.category_id === 1);
+    if (cameraProds.length > 0) matched = cameraProds;
+  }
+
+  if (q.includes('anc') || q.includes('noise cancel')) {
+    const ancProds = matched.filter(p => p.category_id === 3);
+    if (ancProds.length > 0) matched = ancProds;
+  }
+
+  // Detect budget keywords (e.g. "under 60000", "under 25k", "under ₹50,000", "under 1 lakh")
   let budget: number | undefined;
   const budgetMatch = q.match(/under\s+(?:rs\.?|inr|₹)?\s*(\d+)(?:k|,\d+)?/i);
   if (budgetMatch) {
@@ -192,12 +272,43 @@ function generateClientAssistantResponse(message: string, sessionId?: number): C
     } else {
       budget = parseInt(raw.replace(/,/g, ''), 10);
     }
+  } else if (q.includes('under 1 lakh') || q.includes('under 1lakh') || q.includes('under 100k')) {
+    budget = 100000;
   }
 
   if (budget) {
     const budgetFiltered = matched.filter(p => p.price <= budget!);
     if (budgetFiltered.length > 0) {
       matched = budgetFiltered;
+    }
+  }
+
+  // If no category was matched and no brand matched, perform intelligent keyword scoring
+  if (!categoryName && !matchedBrand && !budget) {
+    const stopwords = new Set(['a', 'an', 'the', 'is', 'are', 'for', 'in', 'on', 'with', 'to', 'me', 'i', 'need', 'want', 'show', 'suggest', 'find', 'give', 'best', 'good', 'top', 'cheap', 'price']);
+    const tokens = q.split(/[\s,.-]+/).filter(w => w.length > 2 && !stopwords.has(w));
+    
+    if (tokens.length > 0) {
+      const scored = SEED_PRODUCTS.map(p => {
+        let score = 0;
+        const nameLower = p.name.toLowerCase();
+        const brandLower = p.brand.toLowerCase();
+        const descLower = p.description.toLowerCase();
+        const catLower = (p.category_name || '').toLowerCase();
+        
+        tokens.forEach(tok => {
+          if (nameLower.includes(tok)) score += 4;
+          if (brandLower.includes(tok)) score += 3;
+          if (catLower.includes(tok)) score += 2;
+          if (descLower.includes(tok)) score += 1;
+        });
+        return { product: p, score };
+      }).filter(item => item.score > 0);
+
+      scored.sort((a, b) => b.score - a.score);
+      if (scored.length > 0) {
+        matched = scored.map(s => s.product);
+      }
     }
   }
 
@@ -213,11 +324,11 @@ function generateClientAssistantResponse(message: string, sessionId?: number): C
     stock_quantity: p.stock_quantity,
     image_url: p.image_url,
     specifications: p.specifications,
-    reason: `Top recommendation matching your query (${p.brand} ${p.name} at ₹${p.price.toLocaleString('en-IN')})`
+    reason: `Verified recommendation matching your query (${p.brand} ${p.name} at ₹${p.price.toLocaleString('en-IN')})`
   }));
 
   // Build markdown reply
-  let reply = `Based on your request for **${categoryName || 'electronics'}**${budget ? ` under ₹${budget.toLocaleString('en-IN')}` : ''}, here are our verified recommendations:\n\n`;
+  let reply = `Here are our top verified recommendations for **${categoryName || matchedBrand ? `${matchedBrand || ''} ${categoryName || 'electronics'}`.trim() : 'your request'}**${budget ? ` under ₹${budget.toLocaleString('en-IN')}` : ''}:\n\n`;
 
   topProducts.forEach((p, idx) => {
     reply += `### ${idx + 1}. [${p.brand} ${p.name}](#product-${p.id}) — ₹${p.price.toLocaleString('en-IN')}\n`;
@@ -227,7 +338,7 @@ function generateClientAssistantResponse(message: string, sessionId?: number): C
       const specSummary = specKeys.map(k => `${k}: ${p.specifications![k]}`).join(' | ');
       reply += `- **Specs**: ${specSummary}\n`;
     }
-    reply += `- **Stock**: ${p.stock_quantity > 0 ? `In Stock (${p.stock_quantity} available)` : 'Out of Stock'}\n\n`;
+    reply += `- **Availability**: ${p.stock_quantity > 0 ? `In Stock (${p.stock_quantity} units available)` : 'Out of Stock'}\n\n`;
   });
 
   reply += `> 💡 **Store Guarantee**: All orders qualify for Free Express Shipping, a 7-Day Doorstep Replacement Guarantee, and 100% Brand Manufacturer Warranty.`;

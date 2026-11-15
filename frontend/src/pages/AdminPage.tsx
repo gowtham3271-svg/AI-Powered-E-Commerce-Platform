@@ -81,7 +81,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
         </p>
         <button
           onClick={() => onNavigate('login')}
-          className="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-semibold"
+          className="px-6 py-3 bg-white text-black font-black uppercase tracking-wider text-xs rounded-xl hover:bg-neutral-200 transition-all shadow-xl"
         >
           Sign in as Admin (admin@buysmart.com)
         </button>
@@ -182,19 +182,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
         </div>
 
         {/* Tab Switcher */}
-        <div className="p-1 rounded-xl bg-slate-900 border border-slate-800 flex text-xs font-semibold">
+        <div className="p-1 rounded-xl bg-neutral-900 border border-neutral-800 flex text-xs font-black uppercase tracking-wider">
           <button
             onClick={() => setActiveTab('products')}
-            className={`px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 ${
-              activeTab === 'products' ? 'bg-brand-600 text-white shadow' : 'text-slate-400 hover:text-white'
+            className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-1.5 ${
+              activeTab === 'products' ? 'bg-white text-black shadow-md' : 'text-neutral-400 hover:text-white'
             }`}
           >
             <Package size={14} /> Catalog & Stock
           </button>
           <button
             onClick={() => setActiveTab('ingest')}
-            className={`px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 ${
-              activeTab === 'ingest' ? 'bg-brand-600 text-white shadow' : 'text-slate-400 hover:text-white'
+            className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-1.5 ${
+              activeTab === 'ingest' ? 'bg-white text-black shadow-md' : 'text-neutral-400 hover:text-white'
             }`}
           >
             <Cpu size={14} /> RAG Knowledge Base
@@ -205,15 +205,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
       {/* KPI Cards */}
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <span className="text-[10px] text-slate-400 uppercase font-bold block">Total Revenue</span>
-            <span className="text-lg font-extrabold text-white mt-1 block">
+          <div className="p-4 rounded-2xl bg-neutral-950 border border-neutral-800">
+            <span className="text-[10px] text-neutral-400 uppercase font-black tracking-wider block">Total Revenue</span>
+            <span className="text-lg font-black text-white mt-1 block">
               ₹{stats.total_revenue.toLocaleString('en-IN')}
             </span>
           </div>
-          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <span className="text-[10px] text-slate-400 uppercase font-bold block">Total Orders</span>
-            <span className="text-lg font-extrabold text-brand-400 mt-1 block">
+          <div className="p-4 rounded-2xl bg-neutral-950 border border-neutral-800">
+            <span className="text-[10px] text-neutral-400 uppercase font-black tracking-wider block">Total Orders</span>
+            <span className="text-lg font-black text-white mt-1 block">
               {stats.total_orders}
             </span>
           </div>
@@ -249,9 +249,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Add Product Form */}
-          <div className="p-6 rounded-2xl glass border border-slate-800 space-y-4 h-fit">
-            <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-              <Plus size={16} className="text-brand-400" /> Add Catalog Product
+          <div className="p-6 rounded-2xl bg-neutral-950 border border-neutral-800 space-y-4 h-fit shadow-2xl">
+            <h3 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
+              <Plus size={16} className="text-white" /> Add Catalog Product
             </h3>
 
             {productSuccess && (
@@ -357,7 +357,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
 
               <button
                 type="submit"
-                className="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold shadow-md transition-all mt-2"
+                className="w-full py-3 px-4 bg-white hover:bg-neutral-200 text-black rounded-xl text-xs font-black uppercase tracking-wider shadow-xl transition-all mt-3"
               >
                 Create Product Item
               </button>

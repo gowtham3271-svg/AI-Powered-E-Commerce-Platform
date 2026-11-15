@@ -114,7 +114,7 @@ class RAGService:
             return None
 
         candidate_models = []
-        for m in [settings.GEMINI_MODEL, "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.1-flash-lite"]:
+        for m in [settings.GEMINI_MODEL, "gemini-2.5-flash", "gemini-1.5-flash", "gemini-2.0-flash", "gemini-3.5-flash"]:
             if m and m not in candidate_models:
                 candidate_models.append(m)
 
