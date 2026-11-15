@@ -1,38 +1,27 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "frontend": {
-      "root": "frontend/"
-    },
-    "backend": {
-      "root": "backend/",
-      "entrypoint": "main:app"
-    }
-  },
+  "buildCommand": "node -e \"const { execSync } = require('child_process'); const fs = require('fs'); const dir = fs.existsSync('frontend/package.json') ? 'frontend' : '.'; execSync('npm install && npm run build', { cwd: dir, stdio: 'inherit' });\"",
+  "outputDirectory": "frontend/dist",
   "rewrites": [
     {
       "source": "/api",
-      "destination": { "service": "backend" }
-    },
-    {
-      "source": "/api/:path*",
-      "destination": { "service": "backend" }
+      "destination": "/api/index.py"
     },
     {
       "source": "/api/(.*)",
-      "destination": { "service": "backend" }
+      "destination": "/api/index.py"
     },
     {
       "source": "/docs",
-      "destination": { "service": "backend" }
+      "destination": "/api/index.py"
     },
     {
       "source": "/openapi.json",
-      "destination": { "service": "backend" }
+      "destination": "/api/index.py"
     },
     {
       "source": "/(.*)",
-      "destination": { "service": "frontend" }
+      "destination": "/index.html"
     }
   ]
 }
