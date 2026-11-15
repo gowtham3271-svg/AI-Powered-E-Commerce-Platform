@@ -68,6 +68,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def normalize_api_path(request, call_next):
+    # Support both /api/... and stripped /... paths seamlessly in serverless / proxy environments
+    path = request.scope.get("path", "")
+    if not path.startswith("/api") and not path.startswith("/docs") and not path.startswith("/openapi.json") and not path.startswith("/redoc") and path != "/":
+        request.scope["path"] = f"/api{path}"
+    return await call_next(request)
+
 # Register routers
 app.include_router(auth.router)
 app.include_router(categories.router)
@@ -88,6 +96,7 @@ def root():
     }
 
 @app.get("/api/health", tags=["Health"])
+@app.get("/health", tags=["Health"])
 def health_check():
     return {
         "status": "healthy",
@@ -96,6 +105,7 @@ def health_check():
     }
 
 @app.post("/api/seed", tags=["Admin Operations"])
+@app.post("/seed", tags=["Admin Operations"])
 def trigger_seed():
     """Manual endpoint to populate catalog, demo users, and knowledge base documents."""
     try:

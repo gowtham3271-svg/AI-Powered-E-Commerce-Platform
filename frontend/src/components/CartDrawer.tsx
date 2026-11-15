@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { Order } from '../types';
+import { ImageWithFallback } from './ImageWithFallback';
 
 interface CartDrawerProps {
   onNavigate: (page: string, params?: any) => void;
@@ -150,9 +151,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
                     key={item.id} 
                     className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center gap-3 group"
                   >
-                    <img
-                      src={item.product?.image_url || 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600'}
+                    <ImageWithFallback
+                      src={item.product?.image_url}
                       alt={item.product?.name || 'Product'}
+                      categoryName={item.product?.category_name}
                       className="w-16 h-16 rounded-lg object-cover bg-slate-900 border border-slate-800 shrink-0"
                     />
 

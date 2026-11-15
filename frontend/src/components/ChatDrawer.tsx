@@ -17,6 +17,7 @@ import {
 import { useChat } from '../context/ChatContext';
 import { useCart } from '../context/CartContext';
 import { ReferencedProduct } from '../types';
+import { ImageWithFallback } from './ImageWithFallback';
 
 interface ChatDrawerProps {
   onNavigate: (page: string, params?: any) => void;
@@ -257,8 +258,8 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ onNavigate }) => {
                               className="p-2 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-brand-500/50 cursor-pointer flex items-center justify-between gap-3 group transition-all"
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
-                                <img
-                                  src={rp.image_url || 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600'}
+                                <ImageWithFallback
+                                  src={rp.image_url}
                                   alt={rp.name}
                                   className="w-12 h-12 rounded-lg object-cover bg-slate-900 shrink-0 border border-slate-800"
                                 />

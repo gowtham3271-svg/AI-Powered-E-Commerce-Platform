@@ -19,6 +19,7 @@ import { StarRating } from '../components/StarRating';
 import { useCart } from '../context/CartContext';
 import { useChat } from '../context/ChatContext';
 import { useAuth } from '../context/AuthContext';
+import { ImageWithFallback } from '../components/ImageWithFallback';
 
 interface ProductDetailPageProps {
   productId: number;
@@ -136,9 +137,10 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
         {/* Product Media Column */}
         <div className="space-y-4">
           <div className="aspect-[4/3] rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 shadow-2xl relative">
-            <img
-              src={product.image_url || 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600'}
+            <ImageWithFallback
+              src={product.image_url}
               alt={product.name}
+              categoryName={product.category_name}
               className="w-full h-full object-cover"
             />
             {isOutOfStock ? (

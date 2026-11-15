@@ -3,6 +3,7 @@ import { Package, Clock, CheckCircle2, ArrowRight, ShoppingBag, AlertCircle } fr
 import { Order } from '../types';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { ImageWithFallback } from '../components/ImageWithFallback';
 
 interface OrderHistoryPageProps {
   onNavigate: (page: string, params?: any) => void;
@@ -125,9 +126,10 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({ onNavigate }
                 {order.items.map((item) => (
                   <div key={item.id} className="py-3 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
                     <div className="flex items-center gap-3 min-w-0">
-                      <img
-                        src={item.product?.image_url || 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600'}
+                      <ImageWithFallback
+                        src={item.product?.image_url}
                         alt={item.product?.name || 'Product'}
+                        categoryName={item.product?.category_name}
                         className="w-12 h-12 rounded-lg object-cover bg-slate-950 border border-slate-800 shrink-0"
                       />
                       <div className="min-w-0">

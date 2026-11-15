@@ -4,6 +4,7 @@ import { useChat } from '../context/ChatContext';
 import { useCart } from '../context/CartContext';
 import { api } from '../api/client';
 import { ProductComparison } from '../types';
+import { ImageWithFallback } from './ImageWithFallback';
 
 export const ProductComparisonModal: React.FC = () => {
   const { compareIds, toggleCompare, clearCompare, isComparing, setIsComparing, quickAsk } = useChat();
@@ -118,9 +119,10 @@ export const ProductComparisonModal: React.FC = () => {
                           >
                             <X size={14} />
                           </button>
-                          <img
-                            src={p.image_url || 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600'}
+                          <ImageWithFallback
+                            src={p.image_url}
                             alt={p.name}
+                            categoryName={p.category_name}
                             className="w-full h-32 object-cover rounded-xl bg-slate-900 border border-slate-800 mb-2"
                           />
                           <p className="text-[10px] text-brand-400 uppercase font-bold">{p.brand}</p>
