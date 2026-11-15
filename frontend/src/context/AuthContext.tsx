@@ -24,6 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .then(u => setUser(u))
         .catch(() => {
           localStorage.removeItem('buysmart_token');
+          localStorage.removeItem('buysmart_local_user');
           setUser(null);
         })
         .finally(() => setLoading(false));
@@ -46,6 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     localStorage.removeItem('buysmart_token');
+    localStorage.removeItem('buysmart_local_user');
     setUser(null);
   };
 
