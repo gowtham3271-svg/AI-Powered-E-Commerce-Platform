@@ -147,3 +147,4 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({ onNavigate }) =>
     </div>
   );
 };
+
