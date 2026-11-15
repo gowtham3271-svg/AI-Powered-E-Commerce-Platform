@@ -15,10 +15,12 @@ from app.core.security import get_password_hash
 from app.services.document_service import DocumentService
 
 def seed_database():
-    print("Initializing database extensions and tables...")
-    init_db_extensions()
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
+    db = None
+    try:
+        print("Initializing database extensions and tables...")
+        init_db_extensions()
+        Base.metadata.create_all(bind=engine)
+        db = SessionLocal()
 
     try:
         # 1. SEED USERS
@@ -875,8 +877,12 @@ def seed_database():
         print("  - Customer: priya@example.com / customer123")
         print("========================================================\n")
 
+    except Exception as e:
+        print(f"Notice: database initialization or seeding encountered an issue ({e}).")
+        print("Please verify DATABASE_URL is set correctly in your cloud environment.")
     finally:
-        db.close()
+        if db:
+            db.close()
 
 if __name__ == "__main__":
     seed_database()
