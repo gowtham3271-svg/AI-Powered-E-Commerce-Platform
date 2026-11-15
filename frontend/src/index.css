@@ -5,49 +5,80 @@
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #000000;
+    color: #ffffff;
+    overflow-x: hidden;
   }
 }
 
-/* Glassmorphism Styles */
+/* Snitch Minimalist Glass & Surfaces */
 .glass {
-  background: rgba(17, 24, 39, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-dropdown {
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 10, 12, 0.98);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.5);
+  background: rgba(18, 18, 20, 0.7);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .glass-card:hover {
-  background: rgba(30, 41, 59, 0.85);
-  border-color: rgba(47, 143, 255, 0.4);
-  transform: translateY(-3px);
-  box-shadow: 0 12px 24px -10px rgba(15, 23, 42, 0.8), 0 0 20px -5px rgba(47, 143, 255, 0.15);
+  background: rgba(24, 24, 28, 0.95);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.9);
 }
 
-/* Smooth Scrollbar */
+/* Hide scrollbar for clean horizontal tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Smooth Minimal Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0f19;
+  background: #000000;
 }
 ::-webkit-scrollbar-thumb {
-  background: #273549;
+  background: #262626;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: #525252;
+}
+
+/* Animations & Transitions */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

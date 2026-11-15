@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
-  ShoppingCart, 
+  ShoppingBag, 
   Sparkles, 
   Layers, 
   CheckCircle2, 
@@ -13,19 +13,22 @@ import {
   MessageSquare, 
   CreditCard, 
   Tag, 
-  Calendar, 
-  Flame, 
+  Heart, 
   Check, 
-  Lock,
-  Award
+  ChevronDown, 
+  ChevronUp, 
+  Copy,
+  Lock
 } from 'lucide-react';
 import { Product, ProductReview } from '../types';
 import { api } from '../api/client';
 import { StarRating } from '../components/StarRating';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import { useChat } from '../context/ChatContext';
 import { useAuth } from '../context/AuthContext';
 import { ImageWithFallback } from '../components/ImageWithFallback';
+import { PaymentModal } from '../components/PaymentModal';
 
 interface ProductDetailPageProps {
   productId: number;
@@ -34,6 +37,7 @@ interface ProductDetailPageProps {
 
 export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId, onNavigate }) => {
   const { addToCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const { quickAsk, compareIds, toggleCompare, setIsComparing } = useChat();
   const { user } = useAuth();
 
@@ -41,9 +45,18 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
   const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
-  const [addedAnimation, setAddedAnimation] = useState(false);
+  const [addedToast, setAddedToast] = useState(false);
+  const [copiedCoupon, setCopiedCoupon] = useState(false);
 
-  // Review submission state
+  // Accordions open/close
+  const [openSpecs, setOpenSpecs] = useState(true);
+  const [openWarranty, setOpenWarranty] = useState(false);
+  const [openShipping, setOpenShipping] = useState(false);
+
+  // Instant Buy Now Checkout Modal
+  const [buyNowOpen, setBuyNowOpen] = useState(false);
+
+  // Review state
   const [newRating, setNewRating] = useState(5);
   const [newReviewText, setNewReviewText] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
@@ -59,30 +72,26 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
     ]).then(([prod, revs]) => {
       setProduct(prod);
       setReviews(revs);
-    }).catch(err => {
-      console.error(err);
-    }).finally(() => {
-      setLoading(false);
-    });
+    }).catch(console.error)
+    .finally(() => setLoading(false));
   }, [productId]);
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-20 flex flex-col items-center justify-center gap-3">
-        <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-xs text-slate-400">Loading verified product details & inventory...</p>
+      <div className="max-w-7xl mx-auto px-4 py-24 flex flex-col items-center justify-center gap-3">
+        <div className="w-10 h-10 border-4 border-neutral-700 border-t-white rounded-full animate-spin" />
+        <p className="text-xs text-neutral-400 uppercase tracking-widest">Loading...</p>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-4">
-        <h2 className="text-xl font-bold text-white">Product Not Found</h2>
-        <p className="text-xs text-slate-400">The product you're looking for might have been moved or is currently unavailable.</p>
+      <div className="max-w-7xl mx-auto px-4 py-24 text-center space-y-4">
+        <h2 className="text-xl font-black uppercase text-white">Product Not Found</h2>
         <button
           onClick={() => onNavigate('products')}
-          className="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md"
+          className="px-6 py-2.5 bg-white text-black font-black uppercase text-xs rounded-xl"
         >
           Return to Catalog
         </button>
@@ -90,11 +99,10 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
     );
   }
 
+  const isWishlisted = isInWishlist(product.id);
   const isCompared = compareIds.includes(product.id);
   const isOutOfStock = product.stock_quantity <= 0;
-  const isLowStock = product.stock_quantity > 0 && product.stock_quantity <= 5;
 
-  // Calculate realistic retail MRP (M.R.P.)
   const calculateOriginalMRP = (sellingPrice: number): number => {
     const markupFactor = 1.25;
     const raw = sellingPrice * markupFactor;
@@ -108,15 +116,26 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
   const handleAddToCart = async () => {
     try {
       await addToCart(product.id, qty);
-      setAddedAnimation(true);
-      setTimeout(() => setAddedAnimation(false), 2000);
+      setAddedToast(true);
+      setTimeout(() => setAddedToast(false), 2000);
     } catch (err: any) {
-      alert(err.message || 'Please log in to add items to your cart.');
+      alert(err.message || 'Please sign in to add items to your cart.');
     }
   };
 
-  const handleAskAIAboutItem = () => {
-    quickAsk(`Analyze the ${product.brand} ${product.name}. Highlight its pros, cons, target audience, and key specs compared to market rivals.`);
+  const handleBuyNow = () => {
+    if (!user) {
+      alert('Please sign in to proceed with direct checkout.');
+      onNavigate('login');
+      return;
+    }
+    setBuyNowOpen(true);
+  };
+
+  const handleCopyCoupon = () => {
+    navigator.clipboard.writeText('BUYSMART10');
+    setCopiedCoupon(true);
+    setTimeout(() => setCopiedCoupon(false), 2000);
   };
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
@@ -129,8 +148,8 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
       setSubmittingReview(true);
       const created = await api.addReview(product.id, newRating, newReviewText);
       setReviews(prev => [created, ...prev.filter(r => r.id !== created.id)]);
-      const refreshedProduct = await api.getProductById(product.id);
-      setProduct(refreshedProduct);
+      const refreshed = await api.getProductById(product.id);
+      setProduct(refreshed);
       setReviewSuccess(true);
       setNewReviewText('');
     } catch (err: any) {
@@ -143,308 +162,320 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
   const specs = product.specifications || {};
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12 font-sans">
       
-      {/* Back button */}
+      {/* Top Breadcrumb / Back Link */}
       <button
         onClick={() => onNavigate('products')}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+        className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white transition-colors"
       >
         <ArrowLeft size={16} /> Back to Catalog
       </button>
 
-      {/* Main Product Layout */}
+      {/* Main Split Layout (Snitch Product View) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
         
-        {/* Product Media Column */}
+        {/* Left Column: Visual Gallery with Heart Toggle */}
         <div className="space-y-4">
-          <div className="aspect-[4/3] rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 shadow-2xl relative">
+          <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-800 shadow-2xl relative">
             <ImageWithFallback
               src={product.image_url}
               alt={product.name}
               categoryName={product.category_name}
               className="w-full h-full object-cover"
             />
-            {isOutOfStock ? (
-              <span className="absolute top-4 left-4 px-3 py-1 rounded-lg bg-rose-500 text-white font-black text-xs uppercase shadow">
-                Out of Stock
-              </span>
-            ) : isLowStock ? (
-              <span className="absolute top-4 left-4 px-3 py-1 rounded-lg bg-rose-600 text-white font-black text-xs uppercase shadow animate-pulse flex items-center gap-1">
-                <Flame size={13} /> Only {product.stock_quantity} Remaining!
-              </span>
-            ) : (
-              <span className="absolute top-4 left-4 px-3 py-1 rounded-lg bg-emerald-500 text-slate-950 font-black text-xs uppercase shadow flex items-center gap-1">
-                <CheckCircle2 size={13} /> Verified In Stock ({product.stock_quantity} Units)
+
+            {/* Wishlist Heart Button */}
+            <button
+              onClick={() => toggleWishlist(product.id)}
+              className="absolute top-4 right-4 p-3 rounded-full bg-black/60 hover:bg-black/90 backdrop-blur-md transition-all shadow-xl"
+            >
+              <Heart 
+                size={20} 
+                className={isWishlisted ? 'text-rose-500 fill-rose-500 scale-110' : 'text-white'} 
+              />
+            </button>
+
+            {discountPercent > 0 && !isOutOfStock && (
+              <span className="absolute bottom-4 left-4 px-3 py-1 text-xs font-black uppercase rounded-lg bg-emerald-500 text-black shadow-lg">
+                {discountPercent}% OFF • Save ₹{savings.toLocaleString('en-IN')}
               </span>
             )}
           </div>
-
-          {/* Quick AI Consultation Banner */}
-          <div className="p-4 rounded-2xl glass border border-indigo-500/30 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
-                <Sparkles size={20} />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-white">Ask BuySmart AI about this device</h4>
-                <p className="text-[11px] text-slate-400">Get unbiased pros, cons, and performance benchmarks instantly</p>
-              </div>
-            </div>
-            <button
-              onClick={handleAskAIAboutItem}
-              className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md transition-all shrink-0 active:scale-95"
-            >
-              Consult AI
-            </button>
-          </div>
         </div>
 
-        {/* Product Meta & Purchase Column */}
+        {/* Right Column: Snitch Product Metadata, Offers, and Purchasing */}
         <div className="space-y-6">
+          
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-brand-400 uppercase tracking-wider">
-              <span className="flex items-center gap-1">
-                <ShieldCheck size={14} className="text-brand-400" /> {product.brand} Authorized
-              </span>
-              <span>•</span>
-              <span className="text-slate-400">{product.category_name}</span>
+            <div className="text-[11px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-1">
+              {product.brand} · {product.category_name}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white mt-1.5 leading-tight">
+
+            <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight">
               {product.name}
             </h1>
 
-            {/* Rating badge */}
-            <div className="mt-3 flex items-center gap-2">
-              <StarRating rating={product.average_rating || 0} size={16} showValue />
-              <span className="text-xs text-slate-400">
-                ({reviews.length} verified customer reviews)
-              </span>
-              <span className="text-slate-600">•</span>
-              <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
-                <Award size={13} /> 100% Genuine Seal
-              </span>
-            </div>
-          </div>
-
-          {/* Price Box with MRP Strikethrough & Savings */}
-          <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
-            <div className="flex items-baseline gap-3 flex-wrap">
+            {/* Price (Snitch Clean Typography) */}
+            <div className="mt-3 flex items-baseline gap-3 flex-wrap">
               <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">
                 ₹{product.price.toLocaleString('en-IN')}
               </span>
-              <span className="text-sm text-slate-500 line-through">
-                M.R.P. ₹{mrp.toLocaleString('en-IN')}
-              </span>
-              <span className="text-xs font-extrabold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded">
-                {discountPercent}% OFF • Save ₹{savings.toLocaleString('en-IN')}
+              <span className="text-sm text-neutral-500 line-through">
+                ₹{mrp.toLocaleString('en-IN')}
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">
-              Inclusive of all taxes. Free Express Shipping across India.
+            <p className="text-[11px] text-neutral-400 mt-1">
+              *MRP inclusive of all taxes
+            </p>
+
+            {/* Rating pill (Snitch Black Pill Style) */}
+            <div className="mt-3 inline-flex items-center gap-2">
+              <div className="px-2 py-0.5 rounded bg-black border border-neutral-800 text-white font-bold text-xs flex items-center gap-1">
+                <span>{product.average_rating || 4.8}</span>
+                <span className="text-amber-400">★</span>
+              </div>
+              <span className="text-xs text-neutral-400 font-medium">
+                {reviews.length || 70} Ratings and 15 Reviews
+              </span>
+            </div>
+          </div>
+
+          {/* Snitch Promotional Offer Box (Soft Tinted Card with Copy Code) */}
+          <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={handleCopyCoupon}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-black font-mono tracking-wider hover:bg-rose-500/20 transition-colors"
+              >
+                <span>BUYSMART10</span>
+                {copiedCoupon ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+              </button>
+              <span className="text-[11px] text-neutral-400">Limited time offer</span>
+            </div>
+            <p className="text-xs text-neutral-300">
+              Enjoy flat 10% instant discount on your order at checkout with coupon code.
             </p>
           </div>
 
-          {/* Bank Offers & Promotional Deals Box */}
-          <div className="p-4 rounded-2xl bg-brand-950/30 border border-brand-500/30 space-y-2.5">
-            <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-              <Tag size={14} className="text-amber-400" /> Available Bank & Promo Offers
-            </h4>
-            <div className="space-y-1.5 text-xs text-slate-300">
-              <div className="flex items-center gap-2">
-                <CreditCard size={14} className="text-brand-400 shrink-0" />
-                <span><strong>Instant ₹1,500 Discount</strong> on HDFC & ICICI Bank Credit/Debit Cards.</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Tag size={14} className="text-emerald-400 shrink-0" />
-                <span>Use coupon <strong>BUYSMART10</strong> for extra 10% instant checkout discount.</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar size={14} className="text-indigo-400 shrink-0" />
-                <span><strong>No-Cost EMI:</strong> Pay in 3 or 6 monthly installments starting from ₹{Math.round(product.price / 6).toLocaleString('en-IN')}/mo.</span>
-              </div>
+          {/* Spec / Variant Boxes (Snitch Size Guide Style) */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-neutral-300 uppercase tracking-wider">Specifications & Configuration</span>
+              <button 
+                onClick={() => quickAsk(`What are the technical specs of the ${product.brand} ${product.name}?`)}
+                className="text-[11px] text-neutral-400 hover:text-white underline font-semibold flex items-center gap-1"
+              >
+                <Sparkles size={12} className="text-amber-400" /> Ask AI
+              </button>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(specs).slice(0, 4).map(([k, v]) => (
+                <div
+                  key={k}
+                  className="px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-800 text-xs font-mono text-neutral-200"
+                >
+                  <span className="text-neutral-500 text-[10px] block uppercase">{k}</span>
+                  <span className="font-bold">{String(v)}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Product Description */}
-          <p className="text-sm text-slate-300 leading-relaxed">
-            {product.description}
-          </p>
-
-          {/* Delivery Estimate */}
-          <div className="flex items-center gap-2 text-xs text-slate-300 p-3 rounded-xl bg-slate-900 border border-slate-800">
+          {/* Snitch Soft Delivery Callout */}
+          <div className="p-3 rounded-xl bg-neutral-900/60 border border-neutral-800 text-xs text-neutral-300 flex items-center gap-2">
             <Truck size={16} className="text-emerald-400 shrink-0" />
-            <span>
-              <strong>Delivery by Tomorrow:</strong> Order within the next 4 hours for free priority express dispatch.
-            </span>
+            <span><strong>FREE 1-2 day express delivery</strong> on all 5,000+ Indian pincodes.</span>
           </div>
 
-          {/* Quantity and Actions */}
+          {/* Snitch Action Buttons */}
           <div className="space-y-3 pt-2">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center border border-slate-800 rounded-xl bg-slate-900 overflow-hidden">
+            <div className="flex items-center gap-3">
+              {/* Quantity */}
+              <div className="flex items-center border border-neutral-800 rounded-xl bg-black overflow-hidden">
                 <button
                   onClick={() => setQty(Math.max(1, qty - 1))}
-                  className="p-3 hover:bg-slate-800 text-slate-300 transition-colors"
+                  className="p-3 hover:bg-neutral-800 text-neutral-300"
                 >
                   <Minus size={14} />
                 </button>
-                <span className="px-4 text-sm font-black text-white min-w-[36px] text-center">
+                <span className="px-4 text-sm font-black text-white min-w-[32px] text-center">
                   {qty}
                 </span>
                 <button
                   onClick={() => setQty(Math.min(product.stock_quantity, qty + 1))}
                   disabled={qty >= product.stock_quantity}
-                  className="p-3 hover:bg-slate-800 text-slate-300 disabled:opacity-40 transition-colors"
+                  className="p-3 hover:bg-neutral-800 text-neutral-300 disabled:opacity-40"
                 >
                   <Plus size={14} />
                 </button>
               </div>
 
+              {/* ADD TO BAG Button (Snitch Signature Full-Width Bold Button) */}
               <button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
-                className={`flex-1 py-3.5 px-6 rounded-xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 ${
+                className={`flex-1 py-4 px-6 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl ${
                   isOutOfStock
-                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                    : addedAnimation
-                    ? 'bg-emerald-600 text-white shadow-emerald-600/30'
-                    : 'bg-brand-600 hover:bg-brand-500 text-white shadow-brand-600/30'
+                    ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
+                    : addedToast
+                    ? 'bg-emerald-500 text-black'
+                    : 'bg-white hover:bg-neutral-200 text-black'
                 }`}
               >
-                {addedAnimation ? (
+                {addedToast ? (
                   <>
-                    <Check size={18} />
-                    <span>Added to Cart!</span>
+                    <Check size={16} />
+                    <span>ADDED TO BAG!</span>
                   </>
                 ) : (
                   <>
-                    <ShoppingCart size={18} />
-                    <span>{isOutOfStock ? 'Currently Out of Stock' : 'Add to Shopping Cart'}</span>
+                    <ShoppingBag size={16} />
+                    <span>{isOutOfStock ? 'OUT OF STOCK' : 'ADD TO BAG'}</span>
                   </>
                 )}
               </button>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => toggleCompare(product.id)}
-                className={`flex-1 py-2.5 px-4 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
-                  isCompared 
-                    ? 'bg-brand-500/20 text-brand-300 border-brand-500/50' 
-                    : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
-                }`}
-              >
-                <Layers size={14} />
-                <span>{isCompared ? 'Added to Comparison' : 'Compare Specs with Rivals'}</span>
-              </button>
+            {/* BUY NOW Button (Opens Payment Modal Directly) */}
+            <button
+              onClick={handleBuyNow}
+              disabled={isOutOfStock}
+              className="w-full py-3.5 bg-neutral-900 hover:bg-neutral-800 text-white font-black uppercase tracking-widest text-xs rounded-xl border border-neutral-700 transition-all flex items-center justify-center gap-2"
+            >
+              <Lock size={14} />
+              <span>BUY IT NOW (INSTANT CHECKOUT)</span>
+            </button>
 
-              {compareIds.length >= 2 && (
-                <button
-                  onClick={() => setIsComparing(true)}
-                  className="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all"
-                >
-                  View Matrix ({compareIds.length})
-                </button>
-              )}
-            </div>
+            {/* Compare Spec Button */}
+            <button
+              onClick={() => toggleCompare(product.id)}
+              className="w-full py-2.5 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white transition-colors flex items-center justify-center gap-1.5"
+            >
+              <Layers size={14} />
+              <span>{isCompared ? 'In Compare Matrix' : 'Add to Compare Matrix'}</span>
+            </button>
           </div>
 
-          {/* Value Props & Store Guarantees */}
-          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-800 text-center">
-            <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
-              <Truck size={18} className="text-brand-400 mx-auto mb-1" />
-              <span className="text-[11px] font-bold text-white block">24h Express Dispatch</span>
-              <span className="text-[9px] text-slate-400">Doorstep delivery</span>
+          {/* Collapsible Accordions (Snitch Accordion Pattern) */}
+          <div className="pt-4 border-t border-neutral-800 divide-y divide-neutral-800">
+            
+            {/* Accordion 1: Full Technical Specifications */}
+            <div className="py-3">
+              <button
+                onClick={() => setOpenSpecs(!openSpecs)}
+                className="w-full flex items-center justify-between text-xs font-black uppercase tracking-wider text-white"
+              >
+                <span>Product Specifications & Details</span>
+                {openSpecs ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+              {openSpecs && (
+                <div className="pt-3 text-xs text-neutral-400 space-y-2 font-mono">
+                  <p className="font-sans text-neutral-300 leading-relaxed mb-3">
+                    {product.description}
+                  </p>
+                  {Object.entries(specs).map(([k, v]) => (
+                    <div key={k} className="flex justify-between py-1 border-b border-neutral-900">
+                      <span className="text-neutral-500">{k}:</span>
+                      <span className="text-white font-medium">{String(v)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
-              <RotateCcw size={18} className="text-indigo-400 mx-auto mb-1" />
-              <span className="text-[11px] font-bold text-white block">7-Day Replacement</span>
-              <span className="text-[9px] text-slate-400">Zero hassle return</span>
+
+            {/* Accordion 2: Warranty & Authorized Service */}
+            <div className="py-3">
+              <button
+                onClick={() => setOpenWarranty(!openWarranty)}
+                className="w-full flex items-center justify-between text-xs font-black uppercase tracking-wider text-white"
+              >
+                <span>Warranty & 100% Brand Assurance</span>
+                {openWarranty ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+              {openWarranty && (
+                <div className="pt-3 text-xs text-neutral-400 space-y-1.5 leading-relaxed">
+                  <p>• 1-Year Comprehensive Brand Warranty covering hardware and manufacturing defects.</p>
+                  <p>• Free doorstep diagnostic pick-up or walk-in service at any authorized brand center across India.</p>
+                  <p>• 100% genuine sealed unit guaranteed.</p>
+                </div>
+              )}
             </div>
-            <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
-              <ShieldCheck size={18} className="text-purple-400 mx-auto mb-1" />
-              <span className="text-[11px] font-bold text-white block">1-Year Warranty</span>
-              <span className="text-[9px] text-slate-400">Official Brand Service</span>
+
+            {/* Accordion 3: 7-Day Replacement & Returns */}
+            <div className="py-3">
+              <button
+                onClick={() => setOpenShipping(!openShipping)}
+                className="w-full flex items-center justify-between text-xs font-black uppercase tracking-wider text-white"
+              >
+                <span>7-Day Replacement & Free Delivery Policy</span>
+                {openShipping ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+              {openShipping && (
+                <div className="pt-3 text-xs text-neutral-400 space-y-1.5 leading-relaxed">
+                  <p>• Free express shipping on all prepaid orders.</p>
+                  <p>• 7-day hassle-free replacement in case of dead-on-arrival or physical damage in transit.</p>
+                  <p>• Cash on Delivery supported with zero advance fees.</p>
+                </div>
+              )}
             </div>
+
           </div>
 
         </div>
+
       </div>
 
-      {/* Specifications Breakdown Table */}
-      <section className="space-y-4 pt-8 border-t border-slate-800">
-        <h2 className="text-xl font-bold text-white">Full Technical Specifications</h2>
-        
-        {Object.keys(specs).length === 0 ? (
-          <p className="text-xs text-slate-400">Detailed technical specifications will be uploaded soon.</p>
-        ) : (
-          <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40">
-            <table className="w-full text-left text-xs">
-              <tbody className="divide-y divide-slate-800">
-                {Object.entries(specs).map(([key, val], idx) => (
-                  <tr key={key} className={idx % 2 === 0 ? 'bg-slate-950/40' : 'bg-transparent'}>
-                    <td className="p-3.5 px-5 font-bold text-slate-400 w-1/3 bg-slate-950/60">
-                      {key}
-                    </td>
-                    <td className="p-3.5 px-5 text-slate-200 font-mono">
-                      {String(val)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      {/* Customer Reviews & Ratings Section */}
-      <section className="space-y-6 pt-8 border-t border-slate-800">
+      {/* Customer Reviews Section */}
+      <section className="space-y-6 pt-10 border-t border-neutral-800">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-white">Customer Reviews & Ratings ({reviews.length})</h2>
-            <p className="text-xs text-slate-400">100% Verified Buyer Ratings & Genuine Product Experiences</p>
+            <h2 className="text-xl font-black uppercase tracking-wider text-white">
+              CUSTOMER REVIEWS ({reviews.length})
+            </h2>
+            <p className="text-xs text-neutral-400">100% Verified Buyer Ratings & Genuine Product Experiences</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* Write a Review Box */}
-          <div className="p-6 rounded-2xl glass border border-slate-800 space-y-4 h-fit">
-            <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-              <MessageSquare size={16} className="text-brand-400" /> Share Your Experience
+          {/* Write a Review */}
+          <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800 space-y-4 h-fit">
+            <h3 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
+              <MessageSquare size={14} /> WRITE A REVIEW
             </h3>
 
             {reviewSuccess ? (
               <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs text-center space-y-2">
                 <CheckCircle2 size={24} className="mx-auto" />
-                <p className="font-semibold">Thank you! Your verified review has been published.</p>
+                <p className="font-bold">Thank you! Your verified review has been published.</p>
               </div>
             ) : (
               <form onSubmit={handleReviewSubmit} className="space-y-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1.5">Your Rating</label>
-                  <StarRating rating={newRating} interactive onRate={setNewRating} size={20} />
+                  <label className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide block mb-1">Rating</label>
+                  <StarRating rating={newRating} interactive onRate={setNewRating} size={18} />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1.5">Detailed Feedback</label>
+                  <label className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide block mb-1">Feedback</label>
                   <textarea
                     rows={4}
-                    placeholder="Describe the build quality, performance, battery life, and overall satisfaction..."
+                    placeholder="Share your experience regarding performance, build quality, or battery life..."
                     value={newReviewText}
                     onChange={(e) => setNewReviewText(e.target.value)}
                     required
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                    className="w-full bg-black border border-neutral-800 rounded-xl p-3 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-white"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={submittingReview || !newReviewText.trim()}
-                  className="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white rounded-xl text-xs font-bold shadow-md transition-all"
+                  className="w-full py-2.5 bg-white text-black font-black uppercase text-xs rounded-xl shadow-md hover:bg-neutral-200 transition-all"
                 >
-                  {submittingReview ? 'Submitting...' : 'Post Verified Review'}
+                  {submittingReview ? 'Submitting...' : 'SUBMIT REVIEW'}
                 </button>
               </form>
             )}
@@ -453,26 +484,21 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
           {/* Reviews List */}
           <div className="lg:col-span-2 space-y-4">
             {reviews.length === 0 ? (
-              <div className="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center text-xs text-slate-400">
+              <div className="p-8 rounded-2xl bg-neutral-900 border border-neutral-800 text-center text-xs text-neutral-400">
                 No reviews yet for this model. Be the first verified buyer to share your feedback!
               </div>
             ) : (
               reviews.map((rev) => (
-                <div key={rev.id} className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
+                <div key={rev.id} className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 space-y-2">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-brand-600/20 text-brand-400 font-bold text-xs flex items-center justify-center uppercase">
-                        {rev.user_name.charAt(0)}
-                      </div>
-                      <span className="text-xs font-semibold text-white">{rev.user_name}</span>
-                    </div>
+                    <span className="text-xs font-bold text-white">{rev.user_name}</span>
                     <StarRating rating={rev.rating} size={13} />
                   </div>
-                  <p className="text-xs text-slate-300 leading-relaxed">
+                  <p className="text-xs text-neutral-300 leading-relaxed">
                     {rev.review_text}
                   </p>
-                  <span className="text-[10px] text-slate-500 block">
-                    Verified Purchase • {new Date(rev.created_at).toLocaleDateString()}
+                  <span className="text-[10px] text-neutral-500 block">
+                    Verified Buyer • {new Date(rev.created_at).toLocaleDateString()}
                   </span>
                 </div>
               ))
@@ -481,6 +507,19 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId,
 
         </div>
       </section>
+
+      {/* Embedded Buy Now Instant Checkout Modal */}
+      <PaymentModal
+        isOpen={buyNowOpen}
+        onClose={() => setBuyNowOpen(false)}
+        subtotal={product.price * qty}
+        discount={(product.price * qty * 10) / 100}
+        grandTotal={Math.max(0, (product.price * qty * 90) / 100)}
+        onSuccess={() => {
+          setBuyNowOpen(false);
+          alert('Order placed successfully! Check your orders page.');
+        }}
+      />
 
     </div>
   );

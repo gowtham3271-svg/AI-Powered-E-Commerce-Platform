@@ -4,8 +4,6 @@ import {
   ShieldCheck, 
   Truck, 
   RotateCcw, 
-  Headphones, 
-  CreditCard, 
   Lock, 
   CheckCircle2, 
   Mail, 
@@ -27,120 +25,111 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="w-full border-t border-slate-800 bg-slate-950 mt-20 text-slate-400 text-xs">
-      {/* Top Value Assurance Ribbon */}
-      <div className="border-b border-slate-800/80 bg-slate-900/60 py-6 px-4 sm:px-6 lg:px-8">
+    <footer className="w-full border-t border-neutral-800 bg-black text-neutral-400 text-xs font-sans">
+      
+      {/* 1. Value Assurance Strip (Snitch Style) */}
+      <div className="border-b border-neutral-800/80 bg-neutral-950 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center sm:text-left">
-          <div className="flex items-center gap-3 justify-center sm:justify-start">
-            <div className="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center shrink-0">
+          
+          <div className="flex items-center gap-3.5 justify-center sm:justify-start">
+            <div className="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center shrink-0">
               <Truck size={20} />
             </div>
             <div>
-              <h5 className="text-white font-bold text-xs">Free Express Delivery</h5>
-              <p className="text-[11px] text-slate-400">On all orders above ₹499</p>
+              <h5 className="text-white font-black uppercase tracking-wider text-xs">Free Express Shipping</h5>
+              <p className="text-[11px] text-neutral-400">On all prepaid orders over ₹499</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 justify-center sm:justify-start">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
-              <ShieldCheck size={20} />
-            </div>
-            <div>
-              <h5 className="text-white font-bold text-xs">100% Genuine Products</h5>
-              <p className="text-[11px] text-slate-400">Direct authorized brand warranty</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 justify-center sm:justify-start">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-3.5 justify-center sm:justify-start">
+            <div className="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center shrink-0">
               <RotateCcw size={20} />
             </div>
             <div>
-              <h5 className="text-white font-bold text-xs">7-Day Easy Replacement</h5>
-              <p className="text-[11px] text-slate-400">Doorstep pickup & diagnostic</p>
+              <h5 className="text-white font-black uppercase tracking-wider text-xs">7-Day Replacement</h5>
+              <p className="text-[11px] text-neutral-400">Instant doorstep exchange guarantee</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 justify-center sm:justify-start">
-            <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-3.5 justify-center sm:justify-start">
+            <div className="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center shrink-0">
+              <ShieldCheck size={20} />
+            </div>
+            <div>
+              <h5 className="text-white font-black uppercase tracking-wider text-xs">100% Genuine Care</h5>
+              <p className="text-[11px] text-neutral-400">Official manufacturer warranty</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5 justify-center sm:justify-start">
+            <div className="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center shrink-0">
               <Lock size={20} />
             </div>
             <div>
-              <h5 className="text-white font-bold text-xs">256-Bit SSL Secured</h5>
-              <p className="text-[11px] text-slate-400">Bank-grade encryption payment</p>
+              <h5 className="text-white font-black uppercase tracking-wider text-xs">256-Bit SSL Secured</h5>
+              <p className="text-[11px] text-neutral-400">Bank-grade PCI-DSS compliance</p>
             </div>
           </div>
+
         </div>
       </div>
 
-      {/* Main Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+      {/* 2. Main Footer Links */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
           
-          {/* Brand & Story */}
+          {/* Brand & Mission */}
           <div className="space-y-4 md:col-span-2">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
-                <Sparkles size={20} />
-              </div>
-              <span className="text-lg font-black tracking-tight text-white">BuySmart</span>
-              <span className="px-2 py-0.5 text-[10px] font-bold bg-brand-500/10 text-brand-400 rounded-full border border-brand-500/20">
-                Official Store
-              </span>
+            <div>
+              <span className="text-xl font-black tracking-[0.25em] uppercase text-white">BUYSMART</span>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mt-0.5">
+                OFFICIAL ELECTRONICS D2C STORE
+              </p>
             </div>
-            <p className="text-slate-400 leading-relaxed text-xs pr-4">
-              India's premier AI-guided electronics shopping destination. We bridge verified flagship hardware with transparent pricing, zero markups, and instant expert recommendations.
+            <p className="text-neutral-400 leading-relaxed text-xs pr-6">
+              India's modern AI-guided shopping platform for high-performance laptops, flagship smartphones, and premium audio. We partner directly with authorized brands to deliver certified authentic hardware at honest prices.
             </p>
-            <div className="space-y-1.5 text-xs text-slate-400">
-              <div className="flex items-center gap-2">
-                <MapPin size={14} className="text-brand-400 shrink-0" />
-                <span>Tech Park, Koramangala, Bengaluru, Karnataka 560034</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone size={14} className="text-brand-400 shrink-0" />
-                <span>1800-420-SMART (Toll-free 9 AM – 9 PM IST)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail size={14} className="text-brand-400 shrink-0" />
-                <span>care@buysmart.in</span>
-              </div>
+            <div className="space-y-1 text-xs text-neutral-400 font-medium">
+              <p>📍 Tech Park, Koramangala, Bengaluru, Karnataka 560034</p>
+              <p>📞 1800-420-SMART (Toll-Free 9 AM - 9 PM IST)</p>
+              <p>✉️ care@buysmart.in</p>
             </div>
           </div>
 
-          {/* Quick Categories */}
+          {/* Shop Categories */}
           <div className="space-y-3">
-            <h4 className="text-white font-bold text-xs tracking-wider uppercase">Shop Categories</h4>
-            <ul className="space-y-2 text-slate-400 text-xs">
-              <li><a href="#products" className="hover:text-brand-400 transition-colors">Flagship Smartphones</a></li>
-              <li><a href="#products" className="hover:text-brand-400 transition-colors">High-Performance Laptops</a></li>
-              <li><a href="#products" className="hover:text-brand-400 transition-colors">Wireless ANC Headphones</a></li>
-              <li><a href="#products" className="hover:text-brand-400 transition-colors">Smart Fitness Watches</a></li>
-              <li><a href="#products" className="hover:text-brand-400 transition-colors">Fast Chargers & Tech Accessories</a></li>
+            <h4 className="text-white font-black text-xs tracking-widest uppercase">SHOP</h4>
+            <ul className="space-y-2.5 text-neutral-400 text-xs uppercase tracking-wider font-medium">
+              <li><a href="#products" className="hover:text-white transition-colors">Laptops & Ultrabooks</a></li>
+              <li><a href="#products" className="hover:text-white transition-colors">Flagship Smartphones</a></li>
+              <li><a href="#products" className="hover:text-white transition-colors">Wireless ANC Headphones</a></li>
+              <li><a href="#products" className="hover:text-white transition-colors">Smart Watches</a></li>
+              <li><a href="#products" className="hover:text-white transition-colors">Tech Accessories</a></li>
             </ul>
           </div>
 
-          {/* Customer Care & Policies */}
+          {/* Customer Care */}
           <div className="space-y-3">
-            <h4 className="text-white font-bold text-xs tracking-wider uppercase">Customer Support</h4>
-            <ul className="space-y-2 text-slate-400 text-xs">
-              <li><a href="#orders" className="hover:text-brand-400 transition-colors">Track Your Order</a></li>
-              <li><span className="hover:text-brand-400 cursor-pointer transition-colors">Return & Replacement Policy</span></li>
-              <li><span className="hover:text-brand-400 cursor-pointer transition-colors">Warranty Claim & Service Centers</span></li>
-              <li><span className="hover:text-brand-400 cursor-pointer transition-colors">Shipping & Delivery Rates</span></li>
-              <li><span className="hover:text-brand-400 cursor-pointer transition-colors">Terms of Service & Privacy Policy</span></li>
+            <h4 className="text-white font-black text-xs tracking-widest uppercase">HELP & SUPPORT</h4>
+            <ul className="space-y-2.5 text-neutral-400 text-xs uppercase tracking-wider font-medium">
+              <li><a href="#orders" className="hover:text-white transition-colors">Track Your Order</a></li>
+              <li><span className="hover:text-white cursor-pointer transition-colors">Returns & Exchanges</span></li>
+              <li><span className="hover:text-white cursor-pointer transition-colors">Warranty Claims</span></li>
+              <li><span className="hover:text-white cursor-pointer transition-colors">Shipping & Delivery Rates</span></li>
+              <li><span className="hover:text-white cursor-pointer transition-colors">Terms of Service</span></li>
             </ul>
           </div>
 
-          {/* Newsletter & Promo */}
+          {/* Newsletter Box */}
           <div className="space-y-3">
-            <h4 className="text-white font-bold text-xs tracking-wider uppercase">Get ₹500 Off</h4>
-            <p className="text-xs text-slate-400">
-              Subscribe to unlock member-only flash drops and instant discount coupons.
+            <h4 className="text-white font-black text-xs tracking-widest uppercase">STAY IN TOUCH</h4>
+            <p className="text-xs text-neutral-400">
+              Subscribe for VIP member drops, early sale access, and instant discount vouchers.
             </p>
             {subscribed ? (
               <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2">
                 <CheckCircle2 size={16} />
-                <span>Coupon code sent! Use code <strong>BUYSMART500</strong></span>
+                <span>Coupon sent! Use code <strong>BUYSMART10</strong></span>
               </div>
             ) : (
               <form onSubmit={handleSubscribe} className="space-y-2">
@@ -148,53 +137,54 @@ export const Footer: React.FC = () => {
                   <input
                     type="email"
                     required
-                    placeholder="Enter your email"
+                    placeholder="ENTER YOUR EMAIL"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 pl-3 pr-9 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                    className="w-full bg-neutral-900 border border-neutral-800 rounded-xl py-2.5 pl-3.5 pr-10 text-xs text-white placeholder-neutral-500 uppercase tracking-wider focus:outline-none focus:border-white transition-colors"
                   />
                   <button
                     type="submit"
-                    aria-label="Subscribe to newsletter"
-                    className="absolute right-1.5 top-1.5 p-1 rounded-lg bg-brand-600 hover:bg-brand-500 text-white transition-colors"
+                    aria-label="Subscribe"
+                    className="absolute right-1.5 top-1.5 p-1.5 rounded-lg bg-white text-black hover:bg-neutral-200 transition-colors"
                   >
                     <ArrowRight size={14} />
                   </button>
                 </div>
-                <span className="text-[10px] text-slate-500 block">No spam. Unsubscribe at any time.</span>
               </form>
             )}
           </div>
 
         </div>
 
-        {/* Payment Methods & Safe Checkout Banner */}
-        <div className="mt-10 pt-6 border-t border-slate-900 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
-            <span className="font-semibold text-slate-300">Accepted Payment Modes:</span>
-            <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 font-mono text-[10px]">UPI (GPay / PhonePe / Paytm)</span>
-            <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 font-mono text-[10px]">Visa</span>
-            <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 font-mono text-[10px]">Mastercard</span>
-            <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 font-mono text-[10px]">RuPay</span>
-            <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 font-mono text-[10px]">NetBanking</span>
-            <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 font-mono text-[10px]">Cash on Delivery</span>
+        {/* Payment Partner Logos Strip */}
+        <div className="mt-12 pt-6 border-t border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2 text-[11px] text-neutral-400">
+            <span className="font-bold text-neutral-300 uppercase tracking-wider">100% SECURE PAYMENTS:</span>
+            <span className="px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 text-white font-mono text-[10px]">UPI</span>
+            <span className="px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 text-white font-mono text-[10px]">Google Pay</span>
+            <span className="px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 text-white font-mono text-[10px]">PhonePe</span>
+            <span className="px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 text-white font-mono text-[10px]">Paytm</span>
+            <span className="px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 text-white font-mono text-[10px]">Visa</span>
+            <span className="px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 text-white font-mono text-[10px]">Mastercard</span>
+            <span className="px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 text-white font-mono text-[10px]">RuPay</span>
+            <span className="px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 text-white font-mono text-[10px]">NetBanking</span>
+            <span className="px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 text-white font-mono text-[10px]">Cash on Delivery</span>
           </div>
 
-          <div className="flex items-center gap-2 text-[11px] text-slate-400">
-            <ShieldCheck size={16} className="text-emerald-400" />
-            <span>100% Safe & PCI-DSS Compliant Checkout</span>
-          </div>
+          <span className="text-[11px] text-neutral-400 font-mono">
+            SSL 256-BIT ENCRYPTION
+          </span>
         </div>
 
         {/* Copyright */}
-        <div className="mt-6 pt-4 border-t border-slate-900/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500">
-          <p>© {new Date().getFullYear()} BuySmart Electronics Ltd. All rights reserved.</p>
+        <div className="mt-6 pt-4 border-t border-neutral-900 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-neutral-500 uppercase tracking-wider">
+          <p>© {new Date().getFullYear()} BUYSMART ELECTRONICS PVT. LTD. ALL RIGHTS RESERVED.</p>
           <div className="flex items-center gap-4">
-            <span className="hover:text-slate-400 cursor-pointer">Privacy Policy</span>
+            <span className="hover:text-neutral-300 cursor-pointer">PRIVACY</span>
             <span>•</span>
-            <span className="hover:text-slate-400 cursor-pointer">Terms of Use</span>
+            <span className="hover:text-neutral-300 cursor-pointer">TERMS</span>
             <span>•</span>
-            <span className="hover:text-slate-400 cursor-pointer">Security Practices</span>
+            <span className="hover:text-neutral-300 cursor-pointer">SECURITY</span>
           </div>
         </div>
       </div>

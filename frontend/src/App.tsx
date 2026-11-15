@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { WishlistProvider } from './context/WishlistContext';
 import { ChatProvider } from './context/ChatContext';
 
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
+import { WishlistDrawer } from './components/WishlistDrawer';
 import { ChatDrawer } from './components/ChatDrawer';
 import { ProductComparisonModal } from './components/ProductComparisonModal';
 
@@ -46,17 +48,20 @@ export function AppContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-brand-500 selection:text-white">
-      {/* Global Navbar */}
+    <div className="min-h-screen flex flex-col bg-black text-white selection:bg-white selection:text-black font-sans antialiased">
+      {/* Global Navbar with Snitch Top Bar */}
       <Navbar onNavigate={handleNavigate} currentPage={currentPage} />
 
-      {/* Main Content View with Fade Transition */}
+      {/* Main Content View with Smooth Fade Transition */}
       <main className="flex-1 animate-fade-in">
         {renderPage()}
       </main>
 
-      {/* Shopping Cart Drawer */}
+      {/* Shopping Bag Drawer (Snitch Style) */}
       <CartDrawer onNavigate={handleNavigate} />
+
+      {/* Wishlist Drawer (Snitch Style) */}
+      <WishlistDrawer onNavigate={handleNavigate} />
 
       {/* Global AI Assistant Floating Widget & Drawer */}
       <ChatDrawer onNavigate={handleNavigate} />
@@ -64,7 +69,7 @@ export function AppContent() {
       {/* Product Comparison Modal */}
       <ProductComparisonModal />
 
-      {/* Global Footer */}
+      {/* Global Snitch-Style Monochrome Footer */}
       <Footer />
     </div>
   );
@@ -74,9 +79,11 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <ChatProvider>
-          <AppContent />
-        </ChatProvider>
+        <WishlistProvider>
+          <ChatProvider>
+            <AppContent />
+          </ChatProvider>
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   );
