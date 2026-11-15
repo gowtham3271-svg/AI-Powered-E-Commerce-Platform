@@ -51,7 +51,7 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({ onNavigate }
         <div>
           <h1 className="text-2xl font-extrabold text-white">Order History & Invoices</h1>
           <p className="text-xs text-slate-400 mt-1">
-            Historical orders saved with immutable price snapshots in relational order_items table
+            Track your deliveries, download tax invoices, and manage warranty services
           </p>
         </div>
         <span className="text-xs px-3 py-1 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 font-semibold">

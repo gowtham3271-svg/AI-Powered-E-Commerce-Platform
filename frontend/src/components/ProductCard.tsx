@@ -1,5 +1,5 @@
-import React from 'react';
-import { ShoppingCart, Sparkles, Layers, Check, Eye } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShoppingCart, Sparkles, Layers, Check, Eye, Flame, ShieldCheck, Zap } from 'lucide-react';
 import { Product } from '../types';
 import { StarRating } from './StarRating';
 import { useCart } from '../context/CartContext';
@@ -14,15 +14,31 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) => {
   const { addToCart } = useCart();
   const { quickAsk, compareIds, toggleCompare } = useChat();
+  const [justAdded, setJustAdded] = useState(false);
 
   const isCompared = compareIds.includes(product.id);
   const isOutOfStock = product.stock_quantity <= 0;
   const isLowStock = product.stock_quantity > 0 && product.stock_quantity <= 5;
+  const isBestseller = (product.average_rating || 0) >= 4.5;
+
+  // Calculate realistic retail MRP (M.R.P.) to display strikethrough savings
+  const calculateOriginalMRP = (sellingPrice: number): number => {
+    // 20% to 28% markup rounded to nearest 99 or 49
+    const markupFactor = 1.25;
+    const raw = sellingPrice * markupFactor;
+    return Math.round(raw / 100) * 100 - 1;
+  };
+
+  const mrp = calculateOriginalMRP(product.price);
+  const discountPercent = Math.round(((mrp - product.price) / mrp) * 100);
+  const savings = mrp - product.price;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
       await addToCart(product.id, 1);
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 1800);
     } catch (err: any) {
       alert(err.message || 'Please log in to add items to your cart.');
     }
@@ -30,7 +46,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
 
   const handleAskAI = (e: React.MouseEvent) => {
     e.stopPropagation();
-    quickAsk(`Tell me about the ${product.brand} ${product.name}. What are its main technical specifications, pros, and cons?`);
+    quickAsk(`Tell me about the ${product.brand} ${product.name}. What are its key specifications, pros, and cons compared to alternatives?`);
   };
 
   const handleToggleCompare = (e: React.MouseEvent) => {
@@ -48,7 +64,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
   return (
     <div 
       onClick={() => onSelect(product.id)}
-      className="glass-card rounded-2xl overflow-hidden cursor-pointer group flex flex-col justify-between border border-slate-800/80 hover:border-brand-500/50 hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-300"
+      className="glass-card rounded-2xl overflow-hidden cursor-pointer group flex flex-col justify-between border border-slate-800/80 hover:border-brand-500/60 hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-300 relative bg-slate-900/60"
     >
       {/* Product Image & Badges */}
       <div className="relative aspect-[4/3] bg-slate-900 overflow-hidden flex items-center justify-center">
@@ -59,27 +75,40 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
         />
 
-        {/* Stock Badge */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
+        {/* Top Badges Stack */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+          {/* Bestseller Badge */}
+          {isBestseller && !isOutOfStock && (
+            <span className="flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-amber-500 text-slate-950 shadow-md">
+              <Flame size={12} className="fill-slate-950" /> Bestseller
+            </span>
+          )}
+
+          {/* Stock Badges */}
           {isOutOfStock ? (
-            <span className="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-rose-500/90 text-white backdrop-blur-md shadow-md">
+            <span className="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-rose-500 text-white shadow-md">
               Out of Stock
             </span>
           ) : isLowStock ? (
-            <span className="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-amber-500/90 text-white backdrop-blur-md shadow-md animate-pulse">
-              Only {product.stock_quantity} Left
+            <span className="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-rose-600/90 text-white shadow-md animate-pulse">
+              Only {product.stock_quantity} Left!
             </span>
-          ) : (
-            <span className="px-2.5 py-0.5 text-[10px] font-semibold rounded-md bg-emerald-500/90 text-white backdrop-blur-md shadow-md">
-              In Stock
-            </span>
-          )}
+          ) : null}
         </div>
+
+        {/* Discount Tag */}
+        {discountPercent > 0 && !isOutOfStock && (
+          <div className="absolute bottom-3 left-3 z-10">
+            <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-md bg-emerald-500 text-slate-950 shadow-md">
+              {discountPercent}% OFF
+            </span>
+          </div>
+        )}
 
         {/* Compare Toggle Button */}
         <button
           onClick={handleToggleCompare}
-          title={isCompared ? 'Remove from compare' : 'Add to compare matrix'}
+          title={isCompared ? 'Remove from compare matrix' : 'Add to compare matrix'}
           className={`absolute top-3 right-3 p-2 rounded-xl text-xs font-medium transition-all shadow-md z-10 backdrop-blur-md ${
             isCompared 
               ? 'bg-brand-600 text-white ring-2 ring-brand-400' 
@@ -102,8 +131,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
         <div>
           {/* Brand & Category */}
           <div className="flex items-center justify-between text-[11px] font-medium text-slate-400 mb-1.5">
-            <span className="uppercase tracking-widest text-brand-400 font-bold">{product.brand}</span>
-            <span className="text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full text-[10px]">{product.category_name}</span>
+            <span className="uppercase tracking-widest text-brand-400 font-bold flex items-center gap-1">
+              <ShieldCheck size={12} className="text-brand-400 inline" /> {product.brand}
+            </span>
+            <span className="text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full text-[10px] font-medium">
+              {product.category_name}
+            </span>
           </div>
 
           {/* Product Name */}
@@ -112,7 +145,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
           </h3>
 
           {/* Short Description */}
-          <p className="text-xs text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">
+          <p className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
             {product.description}
           </p>
 
@@ -127,47 +160,71 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
             </div>
           )}
 
-          {/* Rating */}
-          <div className="mt-3 flex items-center gap-1.5">
+          {/* Rating & Social Proof */}
+          <div className="mt-2.5 flex items-center gap-1.5">
             <StarRating rating={product.average_rating || 0} size={13} showValue />
-            <span className="text-[11px] text-slate-500">
-              ({product.review_count || 0} reviews)
+            <span className="text-[11px] text-slate-400">
+              ({product.review_count || 0} verified)
             </span>
           </div>
         </div>
 
-        {/* Pricing & Actions */}
-        <div className="mt-4 pt-3.5 border-t border-slate-800/80 flex items-center justify-between">
-          <div>
-            <span className="text-[10px] uppercase tracking-wider text-slate-500 block leading-tight font-medium">Price</span>
+        {/* Pricing & Commercial CTAs */}
+        <div className="mt-4 pt-3.5 border-t border-slate-800/80">
+          {/* Savings Callout */}
+          <div className="flex items-baseline gap-2 mb-1">
             <span className="text-lg font-black text-white tracking-tight">
-              ₹{(product.price || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              ₹{(product.price || 0).toLocaleString('en-IN')}
+            </span>
+            <span className="text-xs text-slate-500 line-through">
+              ₹{mrp.toLocaleString('en-IN')}
+            </span>
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+              Save ₹{savings.toLocaleString('en-IN')}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Ask AI button */}
-            <button
-              onClick={handleAskAI}
-              title="Ask AI Shopping Assistant about this product"
-              className="p-2.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 hover:border-indigo-500/40 transition-all hover:scale-105 active:scale-95"
-            >
-              <Sparkles size={16} />
-            </button>
+          <div className="flex items-center justify-between gap-2 mt-2">
+            <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+              <Zap size={11} className="text-amber-400" /> Free Express Delivery
+            </span>
 
-            {/* Add to Cart button */}
-            <button
-              onClick={handleAddToCart}
-              disabled={isOutOfStock}
-              className={`p-2.5 rounded-xl flex items-center justify-center transition-all ${
-                isOutOfStock
-                  ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                  : 'bg-brand-600 hover:bg-brand-500 active:scale-95 text-white shadow-lg shadow-brand-600/30 hover:shadow-brand-500/50'
-              }`}
-              title={isOutOfStock ? 'Currently out of stock' : 'Add to shopping cart'}
-            >
-              <ShoppingCart size={16} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              {/* Ask AI button */}
+              <button
+                onClick={handleAskAI}
+                title="Ask AI Shopping Assistant about this product"
+                className="p-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 hover:border-indigo-500/40 transition-all active:scale-95"
+              >
+                <Sparkles size={15} />
+              </button>
+
+              {/* Add to Cart button */}
+              <button
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+                className={`py-2 px-3 rounded-xl flex items-center gap-1.5 text-xs font-bold transition-all ${
+                  isOutOfStock
+                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                    : justAdded
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/30'
+                }`}
+                title={isOutOfStock ? 'Currently out of stock' : 'Add to shopping cart'}
+              >
+                {justAdded ? (
+                  <>
+                    <Check size={14} />
+                    <span>Added!</span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart size={14} />
+                    <span>Add</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -81,7 +81,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigate, initialP
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Explore Product Catalog</h1>
           <p className="text-xs text-slate-400 mt-1">
-            Browse verified electronics with relational schema integrity and live stock counts
+            Browse flagship laptops, smartphones, and audio gear with 100% brand warranty & express dispatch
           </p>
         </div>
 

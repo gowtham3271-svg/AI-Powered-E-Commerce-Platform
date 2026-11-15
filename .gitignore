@@ -45,4 +45,7 @@ Thumbs.db
 
 # Temporary test / probe files
 .test_probe
+.playwright-mcp/
+instagram_reference.png
+
 
